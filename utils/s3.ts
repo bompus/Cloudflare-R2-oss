@@ -36,8 +36,15 @@ export class S3Client {
     const canonicalQueryString = [...url.searchParams]
       .map(
         ([key, value]) =>
-          encodeURIComponent(key) + "=" + encodeURIComponent(value)
+          [encodeURIComponent(key), encodeURIComponent(value)] as [
+            string,
+            string,
+          ]
       )
+      .sort(([ak, av], [bk, bv]) =>
+        ak === bk ? (av < bv ? -1 : av > bv ? 1 : 0) : ak < bk ? -1 : 1
+      )
+      .map(([key, value]) => key + "=" + value)
       .join("&");
     const hashedPayload = "UNSIGNED-PAYLOAD";
     const headers = new Headers(init.headers);
